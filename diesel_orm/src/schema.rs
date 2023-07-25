@@ -62,7 +62,10 @@ diesel::table! {
     releases (release_id) {
         release_id -> Int4,
         channel -> ChannelType,
+        #[max_length = 255]
         repo_fullname -> Varchar,
+        #[max_length = 512]
+        diffs_url -> Varchar,
         released_at -> Date,
     }
 }

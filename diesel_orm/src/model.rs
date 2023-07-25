@@ -28,20 +28,23 @@ pub enum EditType {
 }
 
 
-#[derive(Queryable, Identifiable, Selectable, Deserialize, Insertable, Debug, PartialEq)]
+#[derive(Default, Queryable, Selectable, Identifiable, Associations, Deserialize, Serialize, Insertable, Debug, PartialEq)]
 #[diesel(table_name = releases)]
 pub struct Release {
+    #[diesel(deserialize_as = "i32")]
     pub release_id: i32,
     pub channel: ChannelType,
     pub repo_fullname: String,
+    pub diffs_url: String,
     pub released_at: Date,
 }
 
 
-#[derive(Queryable, Selectable, Identifiable, Associations, Deserialize, Insertable, Debug, PartialEq)]
+#[derive(Default, Queryable, Selectable, Identifiable, Associations, Deserialize, Serialize, Insertable, Debug, PartialEq)]
 #[diesel(belongs_to(Release))]
 #[diesel(table_name = changelogs)]
 pub struct Changelog {
+    #[diesel(deserialize_as = "i32")]
     pub changelog_id: i32,
     pub commit_id: Bpchar,
     pub commited_at: Timestamp,
@@ -50,10 +53,11 @@ pub struct Changelog {
     pub release_id: i32,
 }
 
-#[derive(Queryable, Selectable, Identifiable, Associations, Deserialize, Insertable, Debug, PartialEq)]
+#[derive(Default, Queryable, Selectable, Identifiable, Associations, Deserialize, Serialize, Insertable, Debug, PartialEq)]
 #[diesel(belongs_to(Release))]
 #[diesel(table_name = artifacts)]
 pub struct Artifact {
+    #[diesel(deserialize_as = "i32")]
     pub artifact_id: i32,
     pub filename: String,
     pub filesize: Numeric,
@@ -61,10 +65,11 @@ pub struct Artifact {
     pub release_id: i32,
 }
 
-#[derive(Queryable, Selectable, Identifiable, Associations, Deserialize, Insertable, Debug, PartialEq)]
+#[derive(Default, Queryable, Selectable, Identifiable, Associations, Deserialize, Serialize, Insertable, Debug, PartialEq)]
 #[diesel(belongs_to(Release))]
 #[diesel(table_name = affected_files)]
 pub struct AffectedFiles {
+    #[diesel(deserialize_as = "i32")]
     pub affected_file_id: i32,
     pub file_edit_type: EditType,
     pub file_path: String,
@@ -76,5 +81,34 @@ pub struct AffectedFiles {
 pub struct NewRelease<'a> {
     pub channel: &'a ChannelType,
     pub repo_fullname: &'a String,
+    pub diffs_url: &'a String,
     pub released_at: &'a Date,
 }
+
+#[derive(Insertable)]
+#[diesel(table_name = changelogs)]
+pub struct NewChangelog<'a> {
+    pub commit_id: &'a String,
+    pub commited_at: &'a Timestamp,
+    pub commit_comment, &'a String,
+    pub commited_by: &'a String,
+    pub release_id: &'a i32,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = artifacts)]
+pub struct NewArtifact<'a> {
+    pub filename: &'a String,
+    pub filesize: &'a Numeric,
+    pub filesize_unit: &'a SizeUnit,
+    pub release_id: &'a i32,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = affected_files)]
+pub struct NewAffectedFile<'a> {
+    pub file_edit_type: &'a EditType,
+    pub file_path: &'a String,
+    pub release_id: &'a i32,
+}
+
