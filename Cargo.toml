@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "diesel_orm",
+]
