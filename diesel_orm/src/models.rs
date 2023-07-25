@@ -82,7 +82,6 @@ pub struct NewRelease<'a> {
     pub channel: &'a ChannelType,
     pub repo_fullname: &'a String,
     pub diffs_url: &'a String,
-    pub released_at: &'a Date,
 }
 
 #[derive(Insertable)]
