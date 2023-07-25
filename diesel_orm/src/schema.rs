@@ -6,8 +6,25 @@ pub mod sql_types {
     pub struct ChannelType;
 
     #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "edit_type"))]
+    pub struct EditType;
+
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "size_unit"))]
     pub struct SizeUnit;
+}
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::EditType;
+
+    affected_files (affected_file_id) {
+        affected_file_id -> Int4,
+        file_edit_type -> EditType,
+        #[max_length = 511]
+        file_path -> Varchar,
+        release_id -> Int4,
+    }
 }
 
 diesel::table! {
@@ -50,10 +67,12 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(affected_files -> releases (release_id));
 diesel::joinable!(artifacts -> releases (release_id));
 diesel::joinable!(changelogs -> releases (release_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    affected_files,
     artifacts,
     changelogs,
     releases,
